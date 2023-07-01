@@ -1,0 +1,268 @@
+class Vertex:
+    - a class that represents a vertex in a graph
+    - it includes methods that override the following operators:
+        - __eq__ (==)
+        - __ne__ (!=)
+        - __lt__ (<)
+        - __le__ (<=)
+        - __gt__ (>)
+        - __ge__ (>=)
+        - __hash__ (hash)
+        - str (str)
+        - repr (repr)
+
+class DirectedGraph:
+    - a class that represents a directed graph (a graph with directed edges)
+    - it is represented using two dictionaries:
+        - _predecessors - a dictionary that maps a vertex to a set of its predecessors
+        - _successors - a dictionary that maps a vertex to a set of its successors
+
+    - all the following methods raise errors if the input doesn't make sense
+        - ex: trying to add an edge that already exists
+        - ex: trying to remove a vertex that doesn't exist
+
+    - it includes the following methods:
+        - __init__ (constructor)
+
+        - number_of_vertices (returns the number of vertices in the graph)
+
+        - vertices (returns a generator that yields the vertices in the graph)
+
+        - number_of_edges (returns the number of edges in the graph)
+            - computed as the sum of the number of predecessors of each vertex
+
+        - edges (returns a generator that yields the edges in the graph)
+            - edges are represented as tuples (source, destination)
+
+        - is_vertex (returns True if the given vertex is in the graph, False otherwise)
+
+        - is_edge (returns True if the given edge is in the graph, False otherwise)
+            - an edge is represented as a tuple (source, destination)
+            - preconditions:
+                - source and destination are vertices in the graph
+
+        - get_in_degree (returns the in-degree of the given vertex)
+            - the in-degree of a vertex is the number of its predecessors
+            - preconditions:
+                - the given vertex is in the graph
+
+        - get_inbound_edges (returns a generator that yields the inbound edges of the given vertex)
+            - an inbound edge is an edge that has the given vertex as its successor => (predecessor, vertex)
+            - preconditions:
+                - the given vertex is in the graph
+
+        - get_out_degree (returns the out-degree of the given vertex)
+            - the out-degree of a vertex is the number of its successors
+            - preconditions:
+                - the given vertex is in the graph
+
+        - get_outbound_edges (returns a generator that yields the outbound edges of the given vertex)
+            - an outbound edge is an edge that has the given vertex as its predecessor => (vertex, successor)
+            - preconditions:
+                - the given vertex is in the graph
+
+        - add_vertex (adds the given vertex to the graph)
+            - preconditions:
+                - the given vertex is not in the graph
+
+            - code:
+                    def add_vertex(self, vertex: Vertex):
+                        if vertex in self._predecessors:
+                            raise GraphError("Vertex already exists!")
+
+                        self._predecessors[vertex] = set()
+                        self._successors[vertex] = set()
+
+        - remove_vertex (removes the given vertex from the graph)
+            - removes all the edges that have the given vertex as a predecessor or as a successor
+            - first it removes itself from the set of successors of its predecessors
+            - then it removes itself from the set of predecessors of its successors
+            - then the keys are removed from the dictionaries (_predecessors and _successors)
+            - preconditions:
+                - the given vertex is in the graph
+
+            - code:
+                    def remove_vertex(self, vertex: Vertex):
+                        if vertex not in self._predecessors:
+                            raise GraphError("Invalid vertex!")
+
+                        for predecessor in self._predecessors[vertex]:
+                            self._successors[predecessor].remove(vertex)
+
+                        for successor in self._successors[vertex]:
+                            self._predecessors[successor].remove(vertex)
+
+                        del self._predecessors[vertex]
+                        del self._successors[vertex]
+
+        - add_edge (adds the given edge to the graph)
+            - an edge is represented as a tuple (source, destination)
+            - adds the source vertex to the set of predecessors of the destination vertex
+            - adds the destination vertex to the set of successors of the source vertex
+            - preconditions:
+                - source and destination are vertices in the graph
+                - the edge doesn't already exist
+
+            - code:
+                    def add_edge(self, edge: Tuple[Vertex, Vertex]):
+                        source, destination = edge
+
+                        if source not in self._predecessors or destination not in self._predecessors:
+                            raise GraphError("Invalid edge!")
+
+                        if destination in self._predecessors[source]:
+                            raise GraphError("Edge already exists!")
+
+                        self._predecessors[destination].add(source)
+                        self._successors[source].add(destination)
+
+        - remove_edge (removes the given edge from the graph)
+            - an edge is represented as a tuple (source, destination)
+            - removes the source vertex from the set of predecessors of the destination vertex
+            - removes the destination vertex from the set of successors of the source vertex
+            - preconditions:
+                - source and destination are vertices in the graph
+                - the edge exists
+
+            - code:
+                    def remove_edge(self, edge: Tuple[Vertex, Vertex]):
+                        source, destination = edge
+
+                        if source not in self._predecessors or destination not in self._predecessors:
+                            raise GraphError("Invalid edge!")
+
+                        if destination not in self._predecessors[source]:
+                            raise GraphError("Edge doesn't exist!")
+
+                        self._predecessors[destination].remove(source)
+                        self._successors[source].remove(destination)
+
+        - read_from_file_big (reads a graph from a file in "big" format)
+            - big format: the first line contains the number of vertices and the number of edges
+                          the vertices are numbered from 0 to n-1
+                          the following lines contain the edges
+
+        - read_from_file (reads a graph from a file in "normal" format)
+            - normal format: only edges are given
+                             isolated vertices are represented as such: vertex -1
+
+        - write_to_file (writes the graph to a file in "normal" format)
+            - normal format: only edges are given
+                             isolated vertices are represented as such: vertex -1
+
+        - str (returns a string representation of the graph)
+            - the string representation is in "normal" format
+
+        - repr (returns a string representation of the graph)
+            - the string representation is f"DirectedGraph({self.number_of_vertices}, {self.number_of_edges})"
+
+
+class WeightedDirectedGraph:
+    - a class that represents a weighted directed graph (a graph with directed edges and weights)
+    - it inherits from DirectedGraph
+    - it is represented using three dictionaries:
+        - _predecessors - a dictionary that maps a vertex to a dictionary of its predecessors
+        - _successors - a dictionary that maps a vertex to a dictionary of its successors
+        - _weights - a dictionary that maps an edge to its weight
+            - an edge is represented as a tuple (source, destination)
+
+    - all the following methods raise errors if the input doesn't make sense
+        - ex: trying to add an edge that already exists
+        - ex: trying to remove a vertex that doesn't exist
+
+    - it includes the following extra methods over DirectedMethods
+        - get_edge_cost (returns the cost of the given edge)
+            - an edge is represented as a tuple (source, destination)
+        - preconditions:
+            - source and destination are vertices in the graph
+            - the given edge exists
+
+        - set_edge_cost (sets the cost of the given edge to the given cost)
+            - an edge is represented as a tuple (source, destination)
+        - preconditions:
+            - source and destination are vertices in the graph
+            - the given edge exists
+
+    - it overrides the following methods of DirectedGraph:
+        - remove_vertex (removes the given vertex from the graph)
+            - performs the same operations as DirectedGraph.remove_vertex
+            - it additionally removes the cost from _weights of each edge while looping
+            - preconditions:
+                - the given vertex is in the graph
+
+            - code:
+                    def remove_vertex(self, vertex: Vertex):
+                        if vertex not in self._predecessors:
+                            raise GraphError("Invalid vertex!")
+
+                        for predecessor in self._predecessors[vertex]:
+                            self._successors[predecessor].remove(vertex)
+                            del self._weights[(predecessor, vertex)]
+
+                        for successor in self._successors[vertex]:
+                            self._predecessors[successor].remove(vertex)
+                            del self._weights[(vertex, successor)]
+
+                        del self._predecessors[vertex]
+                        del self._successors[vertex]
+
+        - add_edge (adds the given edge to the graph)
+            - performs the same operations as DirectedGraph.add_edge
+            - it additionally adds the cost to _weights of the edge
+            - preconditions:
+                - source and destination are vertices in the graph
+                - the edge doesn't already exist
+
+            - code:
+                    def add_edge(self, edge: Tuple[Vertex, Vertex], cost: int):
+                        source, destination = edge
+
+                        if source not in self._predecessors or destination not in self._predecessors:
+                            raise GraphError("Invalid edge!")
+
+                        if destination in self._predecessors[source]:
+                            raise GraphError("Edge already exists!")
+
+                        self._predecessors[destination][source] = cost
+                        self._successors[source][destination] = cost
+                        self._weights[edge] = cost
+
+        - remove_edge (removes the given edge from the graph)
+            - performs the same operations as DirectedGraph.remove_edge
+            - it additionally removes the cost from _weights of the edge
+            - preconditions:
+                - source and destination are vertices in the graph
+                - the edge exists
+
+            - code:
+                    def remove_edge(self, edge: Tuple[Vertex, Vertex]):
+                        source, destination = edge
+
+                        if source not in self._predecessors or destination not in self._predecessors:
+                            raise GraphError("Invalid edge!")
+
+                        if destination not in self._predecessors[source]:
+                            raise GraphError("Edge doesn't exist!")
+
+                        del self._predecessors[destination][source]
+                        del self._successors[source][destination]
+                        del self._weights[edge]
+
+        - read_from_file_big (reads a graph from a file in "big" format)
+            - performs the same operations as DirectedGraph.read_from_file_big
+            - it additionally reads the weights of the edges (represented as an extra number on each line)
+
+        - read_from_file (reads a graph from a file in "normal" format)
+            - performs the same operations as DirectedGraph.read_from_file
+            - it additionally reads the weights of the edges (represented as an extra number on each line)
+
+        - write_to_file (writes the graph to a file in "normal" format)
+            - performs the same operations as DirectedGraph.write_to_file
+            - it additionally writes the weights of the edges (represented as an extra number on each line)
+
+        - str (returns a string representation of the graph)
+            - performs the same operations as str(DirectedGraph)
+            - it additionally writes the weights of the edges (represented as an extra number on each line)
+
+        - repr (returns a string representation of the graph)
+            - the string representation is f"WeightedDirectedGraph({self.number_of_vertices}, {self.number_of_edges})"

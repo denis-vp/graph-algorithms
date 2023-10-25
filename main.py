@@ -11,7 +11,7 @@ from ui.undirected_ui import UndirectedUi
 if __name__ == "__main__":
     print("Choose the type of graph you want to work with: ")
     print("1. Weighted directed graph")
-    print("2. Undirected graph")
+    print("2. Unweighted Undirected graph")
 
     option = int(input("Your option: "))
     if option == 1:

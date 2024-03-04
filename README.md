@@ -1,7 +1,7 @@
 # Graph Algorithms CLI Application
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+![License](https://img.shields.io/badge/License-MIT-purple)
 
 This command-line application allows you to perform various graph algorithms on your input graph data. Whether you're a student studying graph theory, a data scientist analyzing networks, or just curious about exploring the world of graphs, this tool provides a versatile and easy-to-use solution.
 
